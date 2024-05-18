@@ -1,6 +1,7 @@
 import motor.motor_asyncio
 from fastapi import FastAPI
 from fastapi import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 # class StudentModel(BaseModel):
 #     """
@@ -29,6 +30,14 @@ from fastapi import HTTPException
 #     )
 #
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 MONGO_URI = "mongodb+srv://prajw4lg:4VoEc3sMryoMdEaA@cluster0.ouqrs10.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
