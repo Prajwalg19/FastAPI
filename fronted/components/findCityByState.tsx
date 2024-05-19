@@ -14,12 +14,13 @@ function FetchCityByState() {
 
     async function handleClick(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
+        const data = {"state_name": state_name}
         const response = await fetch("http://localhost:8000/find_cities_by_state", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({"state_name": state_name})
+            body: JSON.stringify(data)
         })
         const responseData = await response.json();
         setCity(responseData);

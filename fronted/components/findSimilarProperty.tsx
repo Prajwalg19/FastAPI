@@ -1,7 +1,10 @@
 import React, {useState} from "react";
 
 interface Property {
+    property_name: string;
+    address: string;
     city: string;
+    state: string;
 }
 
 function FetchSimilarProperty() {
@@ -24,20 +27,26 @@ function FetchSimilarProperty() {
     return (
         <div>
             <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => handleClick(e)}>
-                <input type="text" placeholder="enter the city name" value={propertyId} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e)} />
+                <input type="text" placeholder="enter the id" value={propertyId} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e)} />
                 <button type="submit">Get property</button>
             </form>
             {city.length !== 0 && (
                 <table>
                     <thead>
                         <tr>
+                            <th>Property Name</th>
+                            <th>Address</th>
                             <th>City</th>
+                            <th>State</th>
                         </tr>
                     </thead>
                     <tbody>
                         {city.map((property: Property, index) => (
                             <tr key={index}>
+                                <td>{property.property_name}</td>
+                                <td>{property.address}</td>
                                 <td>{property.city}</td>
+                                <td>{property.state}</td>
                             </tr>
                         ))}
                     </tbody>

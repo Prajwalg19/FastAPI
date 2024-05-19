@@ -8,16 +8,16 @@ interface Property {
 }
 
 function FetchPropertyDetails() {
-    const [propertyId, setPropertyId] = useState("");
+    const [cityName, setCityName] = useState("");
     const [city, setCity] = useState([]);
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-        setPropertyId(e.target.value);
+        setCityName(e.target.value);
     }
 
     async function handleClick(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        const response = await fetch(`http://localhost:8000/find_similar_properties/${propertyId}`, {
+        const response = await fetch(`http://localhost:8000//fetch_property_details/${cityName}`, {
             method: "GET"
         })
         const responseData = await response.json();
@@ -27,7 +27,7 @@ function FetchPropertyDetails() {
     return (
         <div>
             <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => handleClick(e)}>
-                <input type="text" placeholder="enter the city name" value={propertyId} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e)} />
+                <input type="text" placeholder="enter the city name" value={cityName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e)} />
                 <button type="submit">Get property</button>
             </form>
             {city.length !== 0 && (
