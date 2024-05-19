@@ -1,36 +1,16 @@
 import motor.motor_asyncio
 from fastapi import FastAPI
 from fastapi import HTTPException
+from bson import ObjectId
 from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
 
-# class StudentModel(BaseModel):
-#     """
-#     Container for a single student record.
-#     """
-#
-#     # The primary key for the StudentModel, stored as a `str` on the instance.
-#     # This will be aliased to `_id` when sent to MongoDB,
-#     # but provided as `id` in the API requests and responses.
-#     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-#     name: str = Field(...)
-#     email: EmailStr = Field(...)
-#     course: str = Field(...)
-#     gpa: float = Field(..., le=4.0)
-#     model_config = ConfigDict(
-#         populate_by_name=True,
-#         arbitrary_types_allowed=True,
-#         json_schema_extra={
-#             "example": {
-#                 "name": "Jane Doe",
-#                 "email": "jdoe@example.com",
-#                 "course": "Experiments, Science, and Fashion in Nanophotonics",
-#                 "gpa": 3.0,
-#             }
-#         },
-#     )
-#
+load_dotenv()
+
+MY_ENV_VAR = os.getenv('MONGO_URI')
+
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -39,18 +19,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-MONGO_URI = "mongodb+srv://prajw4lg:4VoEc3sMryoMdEaA@cluster0.ouqrs10.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
+client = motor.motor_asyncio.AsyncIOMotorClient(MY_ENV_VAR)
 
 database = client["test"]
-propertyCollection = database["properties"]
+collection = database["properties"]
 
 
+# test api
 @app.get("/")
 def read():
     return {"Hello": "World"}
 
-
+# api to create property listing
 @app.post("/create_new_property")
 async def create_new_property(data: dict[str, str]):
     property_name = data.get("property_name")
@@ -61,7 +41,7 @@ async def create_new_property(data: dict[str, str]):
     if not (property_name and address and city and state):
         raise HTTPException(status_code=422, detail="Missing required fields")
 
-    document = await propertyCollection.insert_one(
+    document = await collection.insert_one(
         {
             "property_name": property_name,
             "address": address,
@@ -74,11 +54,12 @@ async def create_new_property(data: dict[str, str]):
 
 
 
+# api to fetch listing
 
 @app.get("/fetch_property_details/{city_name}")
 async def fetch_properties(city_name: str):
     try:
-        properties_cursor = propertyCollection.find({"city": city_name}, {"_id": 0})
+        properties_cursor = collection.find({"city": city_name}, {"_id": 0})
         properties = []
         async for property in properties_cursor:
             properties.append(property)
@@ -87,8 +68,7 @@ async def fetch_properties(city_name: str):
     except Exception as e:
         return HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-from fastapi import HTTPException
-from bson import ObjectId
+# api to update listing
 @app.put("/update_property_details")
 async def update_properties(data: dict[str, str]):
     try:
@@ -99,7 +79,7 @@ async def update_properties(data: dict[str, str]):
         state = data.get("state")
 
         property_id = ObjectId(property_id)
-        result = await propertyCollection.update_one(
+        result = await collection.update_one(
             {"_id": property_id},
             {"$set":
                 {"property_name": property_name,
@@ -120,13 +100,57 @@ async def update_properties(data: dict[str, str]):
 
 
 
-# state = database["state"]
-# @api.get("/find_cities_by_state")
-# def find_cities_by_state(data : dict[str,str]):
-#     try:
-#         state_id = data.get("state_id")
-#         state_name = data.get("state_name")
-#
-#
-#     except Exception as e:
-#
+# api to find cities belonging to one state
+@app.get("/find_cities_by_state")
+async def find_cities_by_state(data : dict[str,str]):
+    try:
+        # state_id = data.get("state_id")
+        print(data)
+        state_name = data.get("state_name")
+        cursor = collection.aggregate(
+                [
+                    {
+                        "$match": { "state" : state_name}
+
+                        }, {
+                            "$group": {
+                                "_id": "$city"
+                                }
+                            },
+                        {
+                                "$project":{
+                                    "city":"$_id",
+                                    "_id": 0
+                                    }
+
+                                }
+
+                    ]
+                )
+        cities = []
+        async for city in cursor :
+            cities.append(city)
+        return cities
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+# api to find properties belonging to same city via id of one property
+@app.get("/find_similar_properties/{property_id}")
+async def find_similar_properties(property_id : str):
+    try:
+        property_id = ObjectId(property_id)
+        one_city = collection.find({"_id": property_id}, {"_id": 0})
+
+        async for city in one_city:
+            one_city = city
+
+
+        cursor = collection.find({  "city" : one_city["city"] } , {"_id": 0})
+        cities = []
+        async for city in cursor :
+            cities.append(city)
+        return cities
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
