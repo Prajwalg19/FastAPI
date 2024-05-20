@@ -26,7 +26,7 @@ function FetchPropertyDetails() {
 
     return (
         <div className="h-screen flex flex-col justify-center items-center max-w-md mx-auto">
-            <h1 className="text-center text-2xl font-semibold mb-4">Fetch property details</h1>
+            <h1 className="text-center text-2xl font-semibold mb-4">Fetch property details in a city</h1>
             <form onSubmit={(e: React.FormEvent<HTMLFormElement>) => handleClick(e)} className="flex items-center space-x-2">
                 <input
                     type="text"

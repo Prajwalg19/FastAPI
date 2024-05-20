@@ -14,13 +14,8 @@ function FetchCityByState() {
 
     async function handleClick(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        const data = {state_name: stateName};
-        const response = await fetch("http://localhost:8000/find_cities_by_state", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
+        const response = await fetch(`http://localhost:8000/find_cities_by_state/${stateName}`, {
+            method: "GET",
         });
         const responseData = await response.json();
         setCities(responseData);

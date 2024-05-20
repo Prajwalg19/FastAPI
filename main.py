@@ -101,12 +101,10 @@ async def update_properties(data: dict[str, str]):
 
 
 # api to find cities belonging to one state
-@app.get("/find_cities_by_state")
-async def find_cities_by_state(data : dict[str,str]):
+@app.get("/find_cities_by_state/{state_name}")
+async def find_cities_by_state(state_name : str):
     try:
         # state_id = data.get("state_id")
-        print(data)
-        state_name = data.get("state_name")
         cursor = collection.aggregate(
                 [
                     {
