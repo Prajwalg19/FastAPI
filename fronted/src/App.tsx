@@ -3,6 +3,7 @@ import CreateProperty from "../components/createProperty"
 import FetchPropertyDetails from "../components/fetchPropertyDetails"
 import FetchCityByState from "../components/findCityByState"
 import FetchSimilarProperty from "../components/findSimilarProperty"
+import UpdateProperty from "../components/updateProperty"
 import Home from "./Home"
 function App() {
 
@@ -15,9 +16,8 @@ function App() {
                     <Route element={<FetchPropertyDetails />} path="/fetch_property_details" />
                     <Route element={<FetchCityByState />} path="/fetch_cities_by_state" />
                     <Route element={<FetchSimilarProperty />} path="/fetch_similar_properties" />
+                    <Route element={<UpdateProperty />} path="/update_property_details" />
                 </Routes>
-
-
             </BrowserRouter>
 
         </div>
